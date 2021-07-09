@@ -1,12 +1,14 @@
 import * as PIXI from 'pixi.js';
-import Screen from '../screen';
+import Scene from '../scene';
 import Player from '../player';
 import BallManager from '../managers/ball';
 import { getRandomInt, getRandomMultiplier } from '../../utils/math';
 import { boxesIntersect } from '../../utils/collision';
 
-class GameScreen extends Screen {
+class GameScene extends Scene {
     init() {
+        super.init();
+
         this.ballsInGame = [];
         this.paddles = [];
         this.ballSpawnInterval = 1000;
@@ -20,30 +22,30 @@ class GameScreen extends Screen {
     
         for (let i = 0; i < totalPaddles; i++) {
             const paddle = new PIXI.Sprite(this.resources['MEDIUM_BALL'].texture);
-            this.game.stage.addChild(paddle);
+            this.scene.addChild(paddle);
     
             if (i == 0) {
                 paddle.height = 64;
                 paddle.x = 16;
-                paddle.y = 800 / 2 - paddle.height / 2;
+                paddle.y = this.game.screen.height / 2 - paddle.height / 2;
             }
     
             if (i == 1) {
                 paddle.height = 64;
-                paddle.x = 800 - 16 - paddle.width;
-                paddle.y = 800 / 2 - paddle.height / 2;
+                paddle.x = this.game.screen.width - 16 - paddle.width;
+                paddle.y = this.game.screen.height / 2 - paddle.height / 2;
             }
     
             if (i == 2) {
                 paddle.width = 64;
-                paddle.x = 800 / 2 - paddle.width / 2;
+                paddle.x = this.game.screen.width / 2 - paddle.width / 2;
                 paddle.y = 16;
             }
     
             if (i == 3) {
                 paddle.width = 64;
-                paddle.x = 800 / 2 - paddle.width / 2;
-                paddle.y = 800 - 16 - paddle.height;
+                paddle.x = this.game.screen.width / 2 - paddle.width / 2;
+                paddle.y = this.game.screen.height - 16 - paddle.height;
             }
     
             paddle.vx = 0;
@@ -63,10 +65,10 @@ class GameScreen extends Screen {
 
             ball.sprite = new PIXI.Sprite(this.resources[ball.texture].texture);
 
-            this.game.stage.addChild(ball.sprite);
+            this.scene.addChild(ball.sprite);
             
-            ball.sprite.x = getRandomInt(200, 600);
-            ball.sprite.y = getRandomInt(200, 600);
+            ball.sprite.x = getRandomInt(200, this.game.screen.width - 200);
+            ball.sprite.y = getRandomInt(200, this.game.screen.height - 200);
 
             ball.sprite.vx = ball.speed * getRandomMultiplier();
             ball.sprite.vy = ball.speed * getRandomMultiplier();
@@ -81,9 +83,9 @@ class GameScreen extends Screen {
                 ball.sprite.x += ball.sprite.vx;
                 ball.sprite.y += ball.sprite.vy;
 
-                if (ball.sprite.x + ball.sprite.vx + ball.sprite.width >= 800 || ball.sprite.x + ball.sprite.vx <= 0
-                    || ball.sprite.y + ball.sprite.vy <= 0 || ball.sprite.y + ball.sprite.vy + ball.sprite.height >= 800) {
-                    this.game.stage.removeChild(ball.sprite);
+                if (ball.sprite.x + ball.sprite.vx + ball.sprite.width >= this.game.screen.width || ball.sprite.x + ball.sprite.vx <= 0
+                    || ball.sprite.y + ball.sprite.vy <= 0 || ball.sprite.y + ball.sprite.vy + ball.sprite.height >= this.game.screen.height) {
+                    this.scene.removeChild(ball.sprite);
 
                     this.ballsInGame.splice(i, 1);
                 }
@@ -94,7 +96,7 @@ class GameScreen extends Screen {
                             ball.sprite.vx *= -1;
                             ball.health--;
                         } else {
-                            this.game.stage.removeChild(ball.sprite);
+                            this.scene.removeChild(ball.sprite);
                             this.ballsInGame.splice(i, 1);
                         }
                         
@@ -106,7 +108,7 @@ class GameScreen extends Screen {
 
         if (this.paddles.length) {
             this.paddles.forEach(paddle => {
-                let closestDistance = 800;
+                let closestDistance = this.game.screen.width;
                 let closestBall = null;
 
                 this.ballsInGame.forEach(ball => {
@@ -125,7 +127,7 @@ class GameScreen extends Screen {
                         paddle.vy = -2;
                     }
         
-                    if (paddle.y + paddle.vy <= 0 || paddle.y + paddle.vy + paddle.height >= 800) {
+                    if (paddle.y + paddle.vy <= 0 || paddle.y + paddle.vy + paddle.height >= this.game.screen.height) {
                         paddle.vy = 0;
                     }
         
@@ -140,4 +142,4 @@ class GameScreen extends Screen {
     }
 }
 
-export default GameScreen;
+export default GameScene;

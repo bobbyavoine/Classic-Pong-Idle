@@ -1,8 +1,7 @@
 import Engine from './engine';
-import GameScreen from './components/screens/game'
 
 Engine.launch(() => {
-    Engine.newScreen('Game Screen', GameScreen);
+    Engine.loadScene('MAIN_MENU');
     Engine.update();
     Engine.draw();
 });
